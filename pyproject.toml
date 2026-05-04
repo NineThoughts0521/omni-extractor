@@ -40,8 +40,8 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/YOUR_USERNAME/omni-extractor"
-Issues = "https://github.com/YOUR_USERNAME/omni-extractor/issues"
+Repository = "https://github.com/NineThoughts0521/omni-extractor"
+Issues = "https://github.com/NineThoughts0521/omni-extractor/issues"
 
 [project.scripts]
 omni-extractor = "omni_extractor.cli:main"

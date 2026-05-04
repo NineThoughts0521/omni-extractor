@@ -2,7 +2,7 @@
 
 <!-- Badges -->
 <!--
-[![CI](https://github.com/YOUR_USERNAME/omni-extractor/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/omni-extractor/actions)
+[![CI](https://github.com/NineThoughts0521/omni-extractor/actions/workflows/ci.yml/badge.svg)](https://github.com/NineThoughts0521/omni-extractor/actions)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 -->
@@ -28,7 +28,7 @@ Requires Python 3.11 or later.
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/omni-extractor.git
+git clone https://github.com/NineThoughts0521/omni-extractor.git
 cd omni-extractor
 
 # Install with uv (recommended)
