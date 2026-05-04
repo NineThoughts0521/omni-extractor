@@ -1,7 +1,7 @@
 """Tests for the HTTP fetcher module."""
 
 import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import httpx
 import pytest
@@ -68,7 +68,9 @@ class TestFetcherSuccess:
         return response
 
     @pytest.mark.asyncio
-    async def test_successful_fetch(self, fetcher: Fetcher, mock_html_response: MagicMock) -> None:
+    async def test_successful_fetch(
+        self, fetcher: Fetcher, mock_html_response: MagicMock
+    ) -> None:
         """A successful request should return a populated FetchResult."""
         fetcher._client = AsyncMock()
         fetcher._client.get = AsyncMock(return_value=mock_html_response)
@@ -84,7 +86,9 @@ class TestFetcherSuccess:
         fetcher._client.get.assert_awaited_once()
 
     @pytest.mark.asyncio
-    async def test_user_agent_rotation(self, fetcher: Fetcher, mock_html_response: MagicMock) -> None:
+    async def test_user_agent_rotation(
+        self, fetcher: Fetcher, mock_html_response: MagicMock
+    ) -> None:
         """Each request should use a User-Agent chosen from the curated list."""
         fetcher._client = AsyncMock()
         fetcher._client.get = AsyncMock(return_value=mock_html_response)
@@ -92,7 +96,9 @@ class TestFetcherSuccess:
         await fetcher.fetch("https://example.com")
 
         call_args = fetcher._client.get.call_args
-        sent_headers = call_args.kwargs.get("headers", call_args[1] if len(call_args) > 1 else {})
+        sent_headers = call_args.kwargs.get(
+            "headers", call_args[1] if len(call_args) > 1 else {}
+        )
         assert sent_headers["User-Agent"] in USER_AGENTS
 
 
@@ -116,7 +122,9 @@ class TestFetcherRetry:
         return response
 
     @pytest.mark.asyncio
-    async def test_retry_on_timeout(self, fetcher: Fetcher, ok_response: MagicMock) -> None:
+    async def test_retry_on_timeout(
+        self, fetcher: Fetcher, ok_response: MagicMock
+    ) -> None:
         """A TimeoutException on the first attempt should be retried."""
         fetcher._client = AsyncMock()
         fetcher._client.get = AsyncMock(
@@ -133,7 +141,9 @@ class TestFetcherRetry:
         assert fetcher._client.get.await_count == 2
 
     @pytest.mark.asyncio
-    async def test_retry_on_network_error(self, fetcher: Fetcher, ok_response: MagicMock) -> None:
+    async def test_retry_on_network_error(
+        self, fetcher: Fetcher, ok_response: MagicMock
+    ) -> None:
         """A NetworkError on the first attempt should be retried."""
         fetcher._client = AsyncMock()
         fetcher._client.get = AsyncMock(
@@ -150,7 +160,9 @@ class TestFetcherRetry:
         assert fetcher._client.get.await_count == 2
 
     @pytest.mark.asyncio
-    async def test_retry_on_5xx_status_code(self, fetcher: Fetcher, ok_response: MagicMock) -> None:
+    async def test_retry_on_5xx_status_code(
+        self, fetcher: Fetcher, ok_response: MagicMock
+    ) -> None:
         """A 503 response on the first attempt should trigger a retry."""
         error_response = MagicMock()
         error_response.status_code = 503
@@ -171,7 +183,9 @@ class TestFetcherRetry:
         assert fetcher._client.get.await_count == 2
 
     @pytest.mark.asyncio
-    async def test_retry_on_429_status_code(self, fetcher: Fetcher, ok_response: MagicMock) -> None:
+    async def test_retry_on_429_status_code(
+        self, fetcher: Fetcher, ok_response: MagicMock
+    ) -> None:
         """A 429 (Too Many Requests) response should be retried."""
         error_response = MagicMock()
         error_response.status_code = 429

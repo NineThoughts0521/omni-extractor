@@ -60,21 +60,29 @@ class TestCliArgumentParsing:
     def test_extract_with_output(self) -> None:
         """``extract --url --output`` should capture both arguments."""
         parser = _create_parser()
-        args = parser.parse_args([
-            "extract",
-            "--url", "https://example.com",
-            "--output", "result.json",
-        ])
+        args = parser.parse_args(
+            [
+                "extract",
+                "--url",
+                "https://example.com",
+                "--output",
+                "result.json",
+            ]
+        )
         assert args.output == "result.json"
 
     def test_extract_with_config(self) -> None:
         """Top-level ``--config`` should be recognised."""
         parser = _create_parser()
-        args = parser.parse_args([
-            "--config", "/path/to/.env",
-            "extract",
-            "--url", "https://example.com",
-        ])
+        args = parser.parse_args(
+            [
+                "--config",
+                "/path/to/.env",
+                "extract",
+                "--url",
+                "https://example.com",
+            ]
+        )
         assert args.config == "/path/to/.env"
 
     def test_extract_batch_input_parsing(self) -> None:
@@ -89,32 +97,42 @@ class TestCliArgumentParsing:
     def test_extract_batch_with_output_dir(self) -> None:
         """``extract-batch --output-dir`` should override the default."""
         parser = _create_parser()
-        args = parser.parse_args([
-            "extract-batch",
-            "--input", "urls.txt",
-            "--output-dir", "custom_outputs",
-        ])
+        args = parser.parse_args(
+            [
+                "extract-batch",
+                "--input",
+                "urls.txt",
+                "--output-dir",
+                "custom_outputs",
+            ]
+        )
         assert args.output_dir == "custom_outputs"
 
 
 class TestCliUrlValidation:
     """URL validation logic."""
 
-    @pytest.mark.parametrize("url", [
-        "https://example.com",
-        "http://localhost:8080",
-        "https://user:pass@host/path?query=1",
-    ])
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "https://example.com",
+            "http://localhost:8080",
+            "https://user:pass@host/path?query=1",
+        ],
+    )
     def test_valid_urls(self, url: str) -> None:
         assert _validate_url(url) is True
 
-    @pytest.mark.parametrize("url", [
-        "ftp://example.com",
-        "example.com",
-        "not-a-url",
-        "",
-        "javascript:void(0)",
-    ])
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "ftp://example.com",
+            "example.com",
+            "not-a-url",
+            "",
+            "javascript:void(0)",
+        ],
+    )
     def test_invalid_urls(self, url: str) -> None:
         assert _validate_url(url) is False
 
@@ -142,9 +160,7 @@ class TestCliExtractCommand:
         mock_pipeline_cls.return_value.__aenter__ = AsyncMock(
             return_value=mock_pipeline
         )
-        mock_pipeline_cls.return_value.__aexit__ = AsyncMock(
-            return_value=False
-        )
+        mock_pipeline_cls.return_value.__aexit__ = AsyncMock(return_value=False)
 
         result = ExtractionResult(
             url="https://example.com",
@@ -190,9 +206,7 @@ class TestCliExtractCommand:
         mock_pipeline_cls.return_value.__aenter__ = AsyncMock(
             return_value=mock_pipeline
         )
-        mock_pipeline_cls.return_value.__aexit__ = AsyncMock(
-            return_value=False
-        )
+        mock_pipeline_cls.return_value.__aexit__ = AsyncMock(return_value=False)
 
         result = ExtractionResult(
             url="https://example.com",
@@ -208,11 +222,15 @@ class TestCliExtractCommand:
         mock_pipeline.extract_single = AsyncMock(return_value=result)
 
         output_file = tmp_path / "result.json"
-        exit_code = main([
-            "extract",
-            "--url", "https://example.com",
-            "--output", str(output_file),
-        ])
+        exit_code = main(
+            [
+                "extract",
+                "--url",
+                "https://example.com",
+                "--output",
+                str(output_file),
+            ]
+        )
 
         assert exit_code == 0
         assert output_file.exists()
@@ -235,9 +253,7 @@ class TestCliExtractCommand:
         mock_pipeline_cls.return_value.__aenter__ = AsyncMock(
             return_value=mock_pipeline
         )
-        mock_pipeline_cls.return_value.__aexit__ = AsyncMock(
-            return_value=False
-        )
+        mock_pipeline_cls.return_value.__aexit__ = AsyncMock(return_value=False)
 
         error = ExtractionError(
             url="https://example.com",
@@ -256,32 +272,39 @@ class TestCliExtractBatchCommand:
 
     def test_extract_batch_missing_input_file(self) -> None:
         """A missing input file should return exit code 1."""
-        exit_code = main([
-            "extract-batch",
-            "--input", "/nonexistent/urls.txt",
-        ])
+        exit_code = main(
+            [
+                "extract-batch",
+                "--input",
+                "/nonexistent/urls.txt",
+            ]
+        )
         assert exit_code == 1
 
     def test_extract_batch_empty_input_file(self, tmp_path: Path) -> None:
         """An empty input file should return exit code 1."""
         input_file = tmp_path / "empty.txt"
         input_file.write_text("\n\n", encoding="utf-8")
-        exit_code = main([
-            "extract-batch",
-            "--input", str(input_file),
-        ])
+        exit_code = main(
+            [
+                "extract-batch",
+                "--input",
+                str(input_file),
+            ]
+        )
         assert exit_code == 1
 
     def test_extract_batch_invalid_urls(self, tmp_path: Path) -> None:
         """Invalid URLs in the input file should return exit code 1."""
         input_file = tmp_path / "urls.txt"
-        input_file.write_text(
-            "not-a-url\nanother-bad-url\n", encoding="utf-8"
+        input_file.write_text("not-a-url\nanother-bad-url\n", encoding="utf-8")
+        exit_code = main(
+            [
+                "extract-batch",
+                "--input",
+                str(input_file),
+            ]
         )
-        exit_code = main([
-            "extract-batch",
-            "--input", str(input_file),
-        ])
         assert exit_code == 1
 
     @patch("omni_extractor.cli.ExtractionPipeline")
@@ -300,9 +323,7 @@ class TestCliExtractBatchCommand:
         mock_pipeline_cls.return_value.__aenter__ = AsyncMock(
             return_value=mock_pipeline
         )
-        mock_pipeline_cls.return_value.__aexit__ = AsyncMock(
-            return_value=False
-        )
+        mock_pipeline_cls.return_value.__aexit__ = AsyncMock(return_value=False)
 
         success = ExtractionResult(
             url="https://example.com",
@@ -324,11 +345,15 @@ class TestCliExtractBatchCommand:
         input_file = tmp_path / "urls.txt"
         input_file.write_text("https://example.com\n", encoding="utf-8")
 
-        exit_code = main([
-            "extract-batch",
-            "--input", str(input_file),
-            "--output-dir", str(tmp_path / "out"),
-        ])
+        exit_code = main(
+            [
+                "extract-batch",
+                "--input",
+                str(input_file),
+                "--output-dir",
+                str(tmp_path / "out"),
+            ]
+        )
 
         assert exit_code == 0
         mock_pipeline.extract_batch.assert_awaited_once()
@@ -351,9 +376,7 @@ class TestCliExtractBatchCommand:
         mock_pipeline_cls.return_value.__aenter__ = AsyncMock(
             return_value=mock_pipeline
         )
-        mock_pipeline_cls.return_value.__aexit__ = AsyncMock(
-            return_value=False
-        )
+        mock_pipeline_cls.return_value.__aexit__ = AsyncMock(return_value=False)
 
         batch_result = MagicMock()
         batch_result.successes = []
@@ -364,11 +387,15 @@ class TestCliExtractBatchCommand:
         input_file = tmp_path / "urls.txt"
         input_file.write_text("https://example.com\n", encoding="utf-8")
 
-        exit_code = main([
-            "extract-batch",
-            "--input", str(input_file),
-            "--output-dir", str(tmp_path / "out"),
-        ])
+        exit_code = main(
+            [
+                "extract-batch",
+                "--input",
+                str(input_file),
+                "--output-dir",
+                str(tmp_path / "out"),
+            ]
+        )
 
         assert exit_code == 0
 
@@ -386,11 +413,15 @@ class TestCliConfigHandling:
         mock_load_settings.return_value = mock_settings
 
         parser = _create_parser()
-        args = parser.parse_args([
-            "--config", "/custom/.env",
-            "extract",
-            "--url", "https://example.com",
-        ])
+        args = parser.parse_args(
+            [
+                "--config",
+                "/custom/.env",
+                "extract",
+                "--url",
+                "https://example.com",
+            ]
+        )
         assert args.config == "/custom/.env"
 
     @patch("omni_extractor.cli._load_settings")
@@ -401,11 +432,15 @@ class TestCliConfigHandling:
         """A settings load failure should return exit code 1."""
         mock_load_settings.side_effect = ValueError("Bad config")
 
-        exit_code = main([
-            "--config", "/bad/.env",
-            "extract",
-            "--url", "https://example.com",
-        ])
+        exit_code = main(
+            [
+                "--config",
+                "/bad/.env",
+                "extract",
+                "--url",
+                "https://example.com",
+            ]
+        )
         assert exit_code == 1
 
 
@@ -424,9 +459,12 @@ class TestCliKeyboardInterrupt:
         with patch("omni_extractor.cli.asyncio.run") as mock_run:
             mock_run.side_effect = KeyboardInterrupt()
 
-            exit_code = main([
-                "extract",
-                "--url", "https://example.com",
-            ])
+            exit_code = main(
+                [
+                    "extract",
+                    "--url",
+                    "https://example.com",
+                ]
+            )
 
         assert exit_code == 130

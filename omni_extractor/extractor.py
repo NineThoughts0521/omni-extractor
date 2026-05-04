@@ -93,9 +93,7 @@ class LLMExtractor:
 
             raw_text = message.content or ""
             if not raw_text.strip():
-                raise ExtractionException(
-                    "OpenAI returned empty content", url=url
-                )
+                raise ExtractionException("OpenAI returned empty content", url=url)
 
             try:
                 parsed = json.loads(raw_text)

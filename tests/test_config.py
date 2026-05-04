@@ -5,7 +5,6 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
 import yaml
 
 
@@ -58,6 +57,7 @@ class TestConfigurationFileOperations:
     def test_config_json_serialization(self, mock_config_data):
         """Test that configuration can be serialized to JSON."""
         import json
+
         json_str = json.dumps(mock_config_data)
         loaded_config = json.loads(json_str)
         assert loaded_config == mock_config_data
@@ -117,16 +117,16 @@ class TestConfigurationFileLoading:
 
     def test_load_config_from_yaml_file(self, mock_config_data):
         """Test loading configuration from YAML file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump(mock_config_data, f)
             f.flush()
             f.close()  # Close the file before reopening
-            
+
             # Simulate loading from file
-            with open(f.name, 'r') as config_file:
+            with open(f.name, "r") as config_file:
                 loaded_config = yaml.safe_load(config_file)
                 assert loaded_config == mock_config_data
-            
+
             # Cleanup
             try:
                 os.unlink(f.name)
@@ -137,16 +137,17 @@ class TestConfigurationFileLoading:
     def test_load_config_from_json_file(self, mock_config_data):
         """Test loading configuration from JSON file."""
         import json
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(mock_config_data, f)
             f.flush()
             f.close()  # Close the file before reopening
-            
+
             # Simulate loading from file
-            with open(f.name, 'r') as config_file:
+            with open(f.name, "r") as config_file:
                 loaded_config = json.load(config_file)
                 assert loaded_config == mock_config_data
-            
+
             # Cleanup
             try:
                 os.unlink(f.name)

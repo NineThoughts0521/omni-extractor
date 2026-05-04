@@ -89,6 +89,7 @@ def sample_html_content() -> str:
 
 class MockModel(BaseModel):
     """Mock Pydantic model for testing."""
+
     name: str
     value: int
     description: str = ""

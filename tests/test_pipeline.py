@@ -276,9 +276,7 @@ class TestExtractionPipelineBatch:
             return_value=MagicMock(html="<html>test</html>")
         )
         pipeline.cleaner = MagicMock()
-        pipeline.cleaner.clean_html = MagicMock(
-            return_value=("cleaned text", "Title")
-        )
+        pipeline.cleaner.clean_html = MagicMock(return_value=("cleaned text", "Title"))
         pipeline.extractor = AsyncMock()
         pipeline.extractor.extract = AsyncMock(return_value=sample_extraction_result)
 
@@ -349,9 +347,7 @@ class TestExtractionPipelineProgress:
             return_value=MagicMock(html="<html>test</html>")
         )
         pipeline.cleaner = MagicMock()
-        pipeline.cleaner.clean_html = MagicMock(
-            return_value=("cleaned text", "Title")
-        )
+        pipeline.cleaner.clean_html = MagicMock(return_value=("cleaned text", "Title"))
         pipeline.extractor = AsyncMock()
         pipeline.extractor.extract = AsyncMock(return_value=sample_extraction_result)
 
@@ -360,16 +356,12 @@ class TestExtractionPipelineProgress:
         mock_progress.add_task = MagicMock(return_value=mock_task)
         mock_progress.advance = MagicMock()
 
-        with patch(
-            "omni_extractor.pipeline.Progress", return_value=mock_progress
-        ):
+        with patch("omni_extractor.pipeline.Progress", return_value=mock_progress):
             # Make the context manager work
             mock_progress.__enter__ = MagicMock(return_value=mock_progress)
             mock_progress.__exit__ = MagicMock(return_value=False)
 
             await pipeline.extract_batch(["https://a.com", "https://b.com"])
 
-        mock_progress.add_task.assert_called_once_with(
-            "Extracting URLs...", total=2
-        )
+        mock_progress.add_task.assert_called_once_with("Extracting URLs...", total=2)
         assert mock_progress.advance.call_count == 2

@@ -4,7 +4,6 @@ import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from pydantic import ValidationError
 
 from omni_extractor.config import Settings
 from omni_extractor.extractor import ExtractionException, LLMExtractor
@@ -40,7 +39,9 @@ class TestLLMExtractorSuccess:
     """Happy-path extraction scenarios."""
 
     @patch("omni_extractor.extractor.openai.AsyncOpenAI")
-    async def test_extract_success(self, mock_async_openai: MagicMock, sample_settings: Settings) -> None:
+    async def test_extract_success(
+        self, mock_async_openai: MagicMock, sample_settings: Settings
+    ) -> None:
         """A valid JSON response from the LLM should yield an ExtractionResult."""
         payload = {
             "url": "https://example.com/article",
@@ -126,14 +127,18 @@ class TestLLMExtractorFailures:
                 raw_content="some content",
             )
 
-        assert "validation" in str(exc_info.value).lower() or "LLM output failed validation" in str(exc_info.value)
+        assert "validation" in str(
+            exc_info.value
+        ).lower() or "LLM output failed validation" in str(exc_info.value)
 
     @patch("omni_extractor.extractor.openai.AsyncOpenAI")
     async def test_extract_model_refusal(
         self, mock_async_openai: MagicMock, sample_settings: Settings
     ) -> None:
         """A model refusal should be raised as ExtractionException."""
-        mock_response = _make_mock_response(content=None, refusal="Content policy violation")
+        mock_response = _make_mock_response(
+            content=None, refusal="Content policy violation"
+        )
 
         mock_client = MagicMock()
         mock_client.chat.completions.create = AsyncMock(return_value=mock_response)

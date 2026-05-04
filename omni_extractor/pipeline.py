@@ -66,9 +66,7 @@ class ExtractionPipeline:
         await self.extractor.client.close()
         return False
 
-    async def _process_url(
-        self, url: str
-    ) -> Union[ExtractionResult, ExtractionError]:
+    async def _process_url(self, url: str) -> Union[ExtractionResult, ExtractionError]:
         """Fetch, clean, and extract a single URL.
 
         Errors at any stage are caught and returned as :class:`ExtractionError`

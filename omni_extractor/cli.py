@@ -11,7 +11,7 @@ from typing import List, Optional, Sequence
 from rich.console import Console
 
 from omni_extractor.config import Settings
-from omni_extractor.models import ExtractionError, ExtractionResult
+from omni_extractor.models import ExtractionError
 from omni_extractor.pipeline import ExtractionPipeline
 
 
@@ -49,8 +49,7 @@ def _create_parser() -> argparse.ArgumentParser:
         "-o",
         default=None,
         help=(
-            "Path to write the JSON result. "
-            "If omitted, results are printed to stdout."
+            "Path to write the JSON result. If omitted, results are printed to stdout."
         ),
     )
 
@@ -75,10 +74,7 @@ def _create_parser() -> argparse.ArgumentParser:
         "--output-dir",
         "-d",
         default="outputs",
-        help=(
-            "Directory to write results. "
-            "Defaults to 'outputs/'."
-        ),
+        help=("Directory to write results. Defaults to 'outputs/'."),
     )
 
     return parser

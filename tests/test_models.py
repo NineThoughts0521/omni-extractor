@@ -1,7 +1,7 @@
 """Basic model validation tests for omni-extractor."""
 
 import pytest
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 
 class TestMockModel:
@@ -16,7 +16,9 @@ class TestMockModel:
 
     def test_mock_model_with_description(self, mock_pydantic_model):
         """Test creating a mock model instance with description."""
-        instance = mock_pydantic_model(name="test", value=42, description="test description")
+        instance = mock_pydantic_model(
+            name="test", value=42, description="test description"
+        )
         assert instance.name == "test"
         assert instance.value == 42
         assert instance.description == "test description"
@@ -29,7 +31,9 @@ class TestMockModel:
     def test_mock_model_type_validation(self, mock_pydantic_model):
         """Test that type validation works correctly."""
         with pytest.raises(ValidationError):
-            mock_pydantic_model(name="test", value="not_an_int")  # Wrong type for 'value'
+            mock_pydantic_model(
+                name="test", value="not_an_int"
+            )  # Wrong type for 'value'
 
 
 class TestContentModels:
