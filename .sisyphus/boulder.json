@@ -1,0 +1,24 @@
+{
+  "active_plan": "F:\\Projects\\omni-extractor\\.sisyphus\\plans\\omni-extractor.md",
+  "started_at": "2026-05-04T05:59:21.688Z",
+  "session_ids": [
+    "ses_20e817c91ffeHxzGyx2A8EM8Ac",
+    "ses_20e817c91ffeHxzGyx2A8EM8Ac"
+  ],
+  "session_origins": {
+    "ses_20e817c91ffeHxzGyx2A8EM8Ac": "direct"
+  },
+  "plan_name": "omni-extractor",
+  "agent": "atlas",
+  "task_sessions": {
+    "final-wave:f1": {
+      "task_key": "final-wave:f1",
+      "task_label": "F1",
+      "task_title": "Plan Compliance Audit — oracle",
+      "session_id": "ses_20e6ad6a8ffele4gFuoX4M2FO7",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-04T06:04:07.057Z"
+    }
+  }
+}
