@@ -5,8 +5,8 @@ import asyncio
 import json
 import os
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Optional, Sequence
 
 from rich.console import Console
 
@@ -80,7 +80,7 @@ def _create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _load_settings(config_path: Optional[str]) -> Settings:
+def _load_settings(config_path: str | None) -> Settings:
     """Load settings, optionally from a custom .env file."""
     kwargs: dict = {}
     if config_path is not None:
@@ -88,7 +88,7 @@ def _load_settings(config_path: Optional[str]) -> Settings:
     return Settings(**kwargs)
 
 
-def _read_url_file(path: str) -> List[str]:
+def _read_url_file(path: str) -> list[str]:
     """Read a file and return a list of non-empty, stripped URLs."""
     with open(path, encoding="utf-8") as f:
         return [line.strip() for line in f if line.strip()]
@@ -109,7 +109,7 @@ def _write_json_output(path: str, data: dict) -> None:
 
 async def _run_extract(
     url: str,
-    output_path: Optional[str],
+    output_path: str | None,
     settings: Settings,
     console: Console,
 ) -> int:
@@ -183,10 +183,10 @@ async def _run_extract_batch(
     )
     console.print(f"Results written to [cyan]{output_path.resolve()}[/cyan]")
 
-    return 0 if batch_result.total_failed == 0 else 0
+    return 0 if batch_result.total_failed == 0 else 1
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     """Parse arguments and dispatch to the appropriate command handler.
 
     Args:

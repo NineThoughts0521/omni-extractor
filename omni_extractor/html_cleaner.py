@@ -1,7 +1,6 @@
 """HTML preprocessing utilities for omni-extractor."""
 
 import re
-from typing import Tuple, Optional
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from loguru import logger
@@ -18,7 +17,7 @@ class HTMLCleaner:
         """
         self.char_budget = char_budget
 
-    def clean_html(self, html_content: str) -> Tuple[str, Optional[str]]:
+    def clean_html(self, html_content: str) -> tuple[str, str | None]:
         """Clean HTML content and extract visible text and title.
 
         Args:
@@ -38,7 +37,7 @@ class HTMLCleaner:
             soup = BeautifulSoup(html_content, "html.parser")
         except Exception as e:
             logger.error(f"Failed to parse HTML: {e}")
-            raise ValueError(f"Malformed HTML: {e}")
+            raise ValueError(f"Malformed HTML: {e}") from e
 
         # Extract title before removing elements
         title = self._extract_title(soup)
@@ -54,7 +53,7 @@ class HTMLCleaner:
 
         return text, title
 
-    def _extract_title(self, soup: BeautifulSoup) -> Optional[str]:
+    def _extract_title(self, soup: BeautifulSoup) -> str | None:
         """Extract title from HTML document.
 
         Tries in order: <title> tag, first <h1>, None if not found
@@ -80,7 +79,7 @@ class HTMLCleaner:
                 element.decompose()
 
     def _extract_visible_text(
-        self, soup: BeautifulSoup, title: Optional[str] = None
+        self, soup: BeautifulSoup, title: str | None = None
     ) -> str:
         """Extract visible text from HTML, excluding comments and hidden elements."""
 
@@ -140,7 +139,7 @@ class HTMLCleaner:
 
 def clean_html_content(
     html_content: str, char_budget: int = 20000
-) -> Tuple[str, Optional[str]]:
+) -> tuple[str, str | None]:
     """Convenience function to clean HTML content.
 
     Args:

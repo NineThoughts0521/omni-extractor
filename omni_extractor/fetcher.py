@@ -4,7 +4,6 @@ import asyncio
 import random
 import time
 from datetime import datetime
-from typing import Optional
 
 import httpx
 
@@ -68,10 +67,10 @@ class Fetcher:
 
     RETRYABLE_STATUS_CODES: set[int] = {429, 500, 502, 503, 504}
 
-    def __init__(self, settings: Optional[Settings] = None) -> None:
-        self.settings = settings or Settings()
+    def __init__(self, settings: Settings) -> None:
+        self.settings = settings
         self._semaphore = asyncio.Semaphore(self.settings.max_concurrent_fetch)
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     async def __aenter__(self) -> "Fetcher":
         await self._init_client()
@@ -79,9 +78,9 @@ class Fetcher:
 
     async def __aexit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[object],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: object | None,
     ) -> bool:
         await self.close()
         return False
@@ -92,16 +91,16 @@ class Fetcher:
             return
 
         limits = httpx.Limits(
-            max_connections=40,
-            max_keepalive_connections=20,
-            keepalive_expiry=30.0,
+            max_connections=self.settings.http_max_connections,
+            max_keepalive_connections=self.settings.http_max_keepalive_connections,
+            keepalive_expiry=self.settings.http_keepalive_expiry,
         )
 
         timeout = httpx.Timeout(
-            connect=10.0,
-            read=30.0,
-            write=5.0,
-            pool=10.0,
+            connect=self.settings.http_connect_timeout,
+            read=self.settings.http_read_timeout,
+            write=self.settings.http_write_timeout,
+            pool=self.settings.http_pool_timeout,
         )
 
         self._client = httpx.AsyncClient(
@@ -144,9 +143,9 @@ class Fetcher:
             The last encountered exception if all retries are exhausted.
         """
         max_retries = self.settings.max_retries
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
 
-        for attempt in range(max_retries + 1):
+        for attempt in range(max_retries):
             try:
                 headers = {
                     "User-Agent": self._get_random_user_agent(),

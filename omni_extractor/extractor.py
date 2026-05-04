@@ -2,7 +2,6 @@
 
 import asyncio
 import json
-from typing import Optional
 
 import openai
 from loguru import logger
@@ -15,7 +14,7 @@ from omni_extractor.models import ExtractionResult
 class ExtractionException(Exception):
     """Exception raised when LLM extraction fails."""
 
-    def __init__(self, message: str, url: Optional[str] = None) -> None:
+    def __init__(self, message: str, url: str | None = None) -> None:
         super().__init__(message)
         self.url = url
 
@@ -23,17 +22,17 @@ class ExtractionException(Exception):
 class LLMExtractor:
     """Extract structured content from web pages using an LLM."""
 
-    def __init__(self, settings: Optional[Settings] = None) -> None:
+    def __init__(self, settings: Settings) -> None:
         """Initialize the extractor with application settings.
 
         Args:
-            settings: Application settings. If None, loads from environment.
+            settings: Application settings.
         """
-        self.settings = settings or Settings()
+        self.settings = settings
         self.client = openai.AsyncOpenAI(
             api_key=self.settings.openai_api_key,
             base_url=self.settings.openai_base_url,
-            timeout=60.0,
+            timeout=self.settings.openai_timeout,
         )
         self._semaphore = asyncio.Semaphore(self.settings.max_concurrent_extract)
 

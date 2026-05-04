@@ -5,7 +5,6 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Union
 
 from loguru import logger
 from rich.console import Console
@@ -41,13 +40,13 @@ class ExtractionPipeline:
 
     def __init__(
         self,
-        settings: Optional[Settings] = None,
-        output_dir: Optional[Path] = None,
+        settings: Settings,
+        output_dir: Path | None = None,
     ) -> None:
-        self.settings = settings or Settings()
+        self.settings = settings
         self.output_dir = output_dir or Path("outputs")
         self.fetcher = Fetcher(settings=self.settings)
-        self.cleaner = HTMLCleaner(char_budget=20000)
+        self.cleaner = HTMLCleaner(char_budget=self.settings.html_char_budget)
         self.extractor = LLMExtractor(settings=self.settings)
         self._stderr_console = Console(stderr=True)
         self._stdout_console = Console(file=sys.stdout)
@@ -58,15 +57,15 @@ class ExtractionPipeline:
 
     async def __aexit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[object],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: object | None,
     ) -> bool:
         await self.fetcher.__aexit__(exc_type, exc_val, exc_tb)
         await self.extractor.client.close()
         return False
 
-    async def _process_url(self, url: str) -> Union[ExtractionResult, ExtractionError]:
+    async def _process_url(self, url: str) -> ExtractionResult | ExtractionError:
         """Fetch, clean, and extract a single URL.
 
         Errors at any stage are caught and returned as :class:`ExtractionError`
@@ -125,7 +124,7 @@ class ExtractionPipeline:
         self,
         url: str,
         print_result: bool = True,
-    ) -> Union[ExtractionResult, ExtractionError]:
+    ) -> ExtractionResult | ExtractionError:
         """Extract content from a single URL.
 
         On success (and when *print_result* is ``True``) the result is
@@ -146,7 +145,7 @@ class ExtractionPipeline:
 
         return result
 
-    async def extract_batch(self, urls: List[str]) -> BatchResult:
+    async def extract_batch(self, urls: list[str]) -> BatchResult:
         """Extract content from multiple URLs with rich progress tracking.
 
         Results are written to timestamped JSONL files under *output_dir*:
@@ -166,8 +165,8 @@ class ExtractionPipeline:
         failures_path = self.output_dir / f"failures-{timestamp}.jsonl"
 
         started_at = datetime.now()
-        successes: List[ExtractionResult] = []
-        failures: List[ExtractionError] = []
+        successes: list[ExtractionResult] = []
+        failures: list[ExtractionError] = []
 
         progress = Progress(
             SpinnerColumn(),
@@ -191,10 +190,10 @@ class ExtractionPipeline:
                     result = await self._process_url(url)
                     if isinstance(result, ExtractionResult):
                         successes.append(result)
-                        self._append_jsonl(successes_path, result)
+                        await self._append_jsonl(successes_path, result)
                     else:
                         failures.append(result)
-                        self._append_jsonl(failures_path, result)
+                        await self._append_jsonl(failures_path, result)
                     progress.advance(task)
 
             await asyncio.gather(*[_process_with_progress(url) for url in urls])
@@ -218,12 +217,14 @@ class ExtractionPipeline:
         )
 
     @staticmethod
-    def _append_jsonl(
-        path: Path, obj: Union[ExtractionResult, ExtractionError]
+    async def _append_jsonl(
+        path: Path, obj: ExtractionResult | ExtractionError
     ) -> None:
         """Append a single JSON object to a JSONL file."""
-        with open(path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(obj.model_dump(), default=str) + "\n")
+        def _write() -> None:
+            with open(path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(obj.model_dump(), default=str) + "\n")
+        await asyncio.to_thread(_write)
 
 
 __all__ = ["ExtractionPipeline"]

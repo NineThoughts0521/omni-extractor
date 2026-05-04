@@ -1,12 +1,11 @@
 """Utility functions for omni-extractor."""
 
 import sys
-from typing import Optional
 
 from loguru import logger
 
 
-def setup_logging(log_level: str = "INFO", sink: Optional[str] = None) -> None:
+def setup_logging(log_level: str = "INFO", sink: str | None = None) -> None:
     """Configure loguru logging for the application.
 
     Removes the default handler and adds a new stderr (or file) handler with

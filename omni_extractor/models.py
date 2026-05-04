@@ -1,7 +1,6 @@
 """Data models for omni-extractor."""
 
 from datetime import datetime
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -13,11 +12,11 @@ class ExtractionResult(BaseModel):
     title: str = Field(description="The title of the content")
     summary: str = Field(description="A brief summary of the main content")
     main_content: str = Field(description="The main extracted content body")
-    publish_time: Optional[str] = Field(
+    publish_time: str | None = Field(
         None, description="Publication time if available"
     )
-    author: Optional[str] = Field(None, description="Author name if available")
-    keywords: List[str] = Field(
+    author: str | None = Field(None, description="Author name if available")
+    keywords: list[str] = Field(
         default_factory=list, description="List of extracted keywords"
     )
     confidence: float = Field(
@@ -42,10 +41,10 @@ class ExtractionError(BaseModel):
 class BatchResult(BaseModel):
     """Result of a batch extraction operation."""
 
-    successes: List[ExtractionResult] = Field(
+    successes: list[ExtractionResult] = Field(
         description="List of successful extractions"
     )
-    failures: List[ExtractionError] = Field(description="List of failed extractions")
+    failures: list[ExtractionError] = Field(description="List of failed extractions")
     total_processed: int = Field(description="Total number of URLs processed")
     total_failed: int = Field(description="Total number of failed extractions")
     started_at: datetime = Field(description="When the batch operation started")

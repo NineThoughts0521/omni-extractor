@@ -217,7 +217,7 @@ class TestFetcherRetry:
             await fetcher.fetch("https://example.com")
 
         assert exc_info.value.extraction_error.error_type == "TimeoutException"
-        assert fetcher._client.get.await_count == fetcher.settings.max_retries + 1
+        assert fetcher._client.get.await_count == fetcher.settings.max_retries
 
 
 class TestFetcherValidation:
