@@ -44,5 +44,8 @@ htmlcov/
 # Pytest
 .pytest_cache/
 
+# Sisyphus plans / work state
+.sisyphus/
+
 # Eggs
 *.egg
