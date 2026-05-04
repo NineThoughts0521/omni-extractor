@@ -25,6 +25,9 @@ dev = [
     "pyyaml>=6.0",
 ]
 
+[project.scripts]
+omni-extractor = "omni_extractor.cli:main"
+
 [tool.uv]
 default-groups = ["dev"]
 
